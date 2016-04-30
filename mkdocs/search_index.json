@@ -1,0 +1,464 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Deform documentation\n\n\nDeform\n is a simple database as a service. This documentation\ncontains all the information you need to get started using all\n\nDeform\n facilities.\n\n\nFeatures\n\n\n\n\nREST HTTP API\n\n\nCommand line interface\n\n\nWeb GUI\n\n\nMongoDB\n like query language\n\n\nSchema validation\n\n\nData processors\n\n\nFile storage\n\n\nAuthorization\n\n\nREST Hooks\n\n\n\n\nHow it works\n\n\ntodo: image with an architecture overview", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#deform-documentation", 
+            "text": "Deform  is a simple database as a service. This documentation\ncontains all the information you need to get started using all Deform  facilities.", 
+            "title": "Deform documentation"
+        }, 
+        {
+            "location": "/#features", 
+            "text": "REST HTTP API  Command line interface  Web GUI  MongoDB  like query language  Schema validation  Data processors  File storage  Authorization  REST Hooks", 
+            "title": "Features"
+        }, 
+        {
+            "location": "/#how-it-works", 
+            "text": "todo: image with an architecture overview", 
+            "title": "How it works"
+        }, 
+        {
+            "location": "/quickstart/", 
+            "text": "Setup\n\n\nThis quickstart assumes you have a working installation of \nDeform cli\n.\nTo verify cli is installed, use the following command:\n\n\n$ deform info\n\n\n\nIf you get \ndeform: command not found\n you must install the CLI by\n\nfollowing instructions\n. If you're a mac user you can install\nit with \nbrew\n:\n\n\n$ brew install deform-cli\n\n\n\nRegistration\n\n\nIf you are new to Deform you must create an account.\nProvide an initial project with the name and the identifier:\n\n\n$ deform account create -e email@example.com -p mypassword \\\n      --project-name 'My mysquare' \\\n      --project-id 'mysquare'\n\n\n\n\n\nNote\n\n\nBe careful with the \n--project-id\n.\nIt should be unique across the all Deform projects (even if it doesn't belong to your account!).\nIf you have some conflict errors just set the project's id as \nmysquare1\n, \nmysquare2\n, etc...\n\n\n\n\nWhen you create the account you automatically become logged in.\n\n\n$ deform account\n\n\n\nLet's look at the \nmysquare\n project info:\n\n\n$ deform get mysquare\n\n\n\nIf you created the project with the id \nmysquare3000\n then use it:\n\n\n$ deform get mysquare3000\n\n\n\nWe will use \nmysquare\n project id through all the documentation. Just don't forget\nto use your own id.\n\n\nCollections\n\n\nDeform follows the \nMongoDB\n paradigm\nand operates over \ncollections\n and \ndocuments\n. To see what collections are already in\nproject you can type command with \nget \nproject-id\n.collections\n pattern:\n\n\n$ deform get mysquare.collections\n\n\n\n[  \n  {  \n    \n_id\n: \n_files\n,\n    \nname\n: \nFiles\n,\n    \nschema\n: ...,\n    \nindexes\n: ...,\n    ...\n  },\n  ...\n]\n\n\n\n\nWe intentionally shortened response because by default this command returns\nname, schema, indexes and other information.\n\n\nWe can ask to show only the fields we want to see:\n\n\n$ deform get mysquare.collections --fields name\n\n\n\n[  \n  {  \n    \n_id\n: \n_files\n,\n    \nname\n: \nFiles\n\n  },\n  {\n    \n_id\n: \n_tokens\n,\n    \nname\n: \nTokens\n\n  },\n  {\n    \n_id\n: \n_hooks\n,\n    \nname\n: \nHooks\n\n  },\n  {\n    \n_id\n: \n_hooks_history\n,\n    \nname\n: \nHooks history\n\n  },\n  {\n    \n_id\n: \n_notifications\n,\n    \nname\n: \nNotifications\n\n  }\n]\n\n\n\n\nEvery project in Deform contains system collections which names starts with \n_\n prefix.\nYou can not remove them. \nRead more about system collections\n.\n\n\nDocuments\n\n\nLet's create a document in a collection called \nvenues\n:\n\n\n$ deform create mysquare.collections.venues.documents name=Starbucks\n\n\n\n{\n  \n_id\n: \n56bcbb310640fd0be9fdba88\n,\n  \nname\n: \nStarbucks\n\n}\n\n\n\n\nWe don't have to create the collection before inserting documents. If there is no collection\n\nvenues\n in the project it will be created automatically.\n\n\nIf you don't provide \n_id\n for the document it will be generated. \n_id\n is the only\nsystem field. It should be unique and can not be changed. We can remove the document\nand recreate it with a custom id:\n\n\n$ deform remove mysquare.collections.venues.documents.56bcbb310640fd0be9fdba88\n$ deform create mysquare.collections.venues.documents \\\n    _id=starbucks \\\n    name=Starbucks\n\n\n\n\n{\n  \n_id\n: \nstarbucks\n,\n  \nname\n: \nStarbucks\n\n}\n\n\n\n\nRead more about documents\n.\n\n\nSchema\n\n\nDeform doesn't force you to use a schema for the documents in any collection. This\nis the power of the nosql databases.\nYou can insert a venues without the \nname\n property but with a \nrating\n property:\n\n\n$ deform create mysquare.collections.venues.documents \\\n    _id=mcdonalds \\\n    rating:=5\n\n\n\n\n{\n  \n_id\n: \nmcdonalds\n,\n  \nrating\n: 5\n}\n\n\n\n\nBut what if you want the \nname\n property to be mandatory? That's where you can change\nthe schema of the \nvenues\n collection.\nDeform uses \nJSON schema\n and by default it allows you to insert\nany properties. Let's look at the \nvenues\n collection schema:\n\n\n$ deform get mysquare.collections.venues.schema\n\n\n\n{  \n  \ntype\n: \nobject\n,\n  \nproperties\n: {},\n  \nadditionalProperties\n: true\n}\n\n\n\n\nProviding \nadditionalProperties\n is \ntrue\n you are not limited to use any properties.\n\n\nLet's make the \nname\n property required:\n\n\n$ deform update --partial mysquare.collections.venues.schema \\\n    properties.name:='{\ntype\n: \nstring\n, \nrequired\n: true}'\n\n\n\n\n{  \n  \ntype\n: \nobject\n,\n  \nproperties\n: {\n    \nname\n: {\n      \ntype\n: \nstring\n,\n      \nrequired\n: true\n    }\n  },\n  \nadditionalProperties\n: true,\n}\n\n\n\n\nLet's try to create a venue without the \nname\n property:\n\n\n$ deform create mysquare.collections.venues.documents \\\n    _id=kfc \\\n    rating:=5\n\n\n\n\n{  \n  \nerror\n: [\n    {\n      \nproperty\n: \nname\n,\n      \nmessage\n: \nrequired\n\n    }\n  ]\n}\n\n\n\n\nOops. Validation error. That's what we've expected. Let's provide the \nname\n:\n\n\n$ deform create mysquare.collections.venues.documents \\\n    _id=kfc \\\n    name=KFC \\\n    rating:=5\n\n\n\n\n{\n  \n_id\n: \nkfc\n,\n  \nname\n: \nKFC\n,\n  \nrating\n: 5\n}\n\n\n\n\nThe document've been successfully created. You could be curious what've happened with\nthe \nmcdonalds\n venue? Actually nothing, it's still in the \nvenues\n collection:\n\n\n$ deform get mysquare.collections.venues.documents\n\n\n\n[\n  {\n    \n_id\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \n_id\n: \nmcdonalds\n,\n    \nrating\n: 10\n  },\n  {\n    \n_id\n: \nkfc\n,\n    \nname\n: \nKFC\n,\n    \nrating\n: 5\n  }\n]\n\n\n\n\nDeform doesn't force you to migrate existing documents when the collection's schema is changed.\nBut when you try to update a document you will be asked to provide the required property:\n\n\n$ deform update --partial mysquare.collections.venues.documents.mcdonalds \\\n    rating:=6\n\n\n\n\n{  \n  \nerror\n: [\n    {\n      \nproperty\n: \nname\n,\n      \nmessage\n: \nrequired\n\n    }\n  ]\n}\n\n\n\n\nLet's set the name for McDonalds:\n\n\n$ deform update --partial mysquare.collections.venues.documents.mcdonalds \\\n    name=McDonalds\n\n\n\n\n{\n  \n_id\n: \nmcdonalds\n,\n  \nname\n: \nMcDonalds\n,\n  \nrating\n: 10\n}\n\n\n\n\nRead more about schemas\n.\n\n\nFiles\n\n\nOur \nvenues\n collection contains venues with the names but that is not enough.\nLet's add some photos!\n\n\nDeform operates with files like with any data.\nLet's add an array property which will contain all the venue photos:\n\n\n$ deform update --partial mysquare.collections.venues.schema \\\n    properties.photos:='{\ntype\n: \narray\n, \nitems\n: {\ntype\n: \nfile\n}}'\n\n\n\n\n{  \n  \ntype\n: \nobject\n,\n  \nproperties\n: {\n    \nname\n: {\n      \ntype\n: \nstring\n,\n      \nrequired\n: true\n    },\n    \nphotos\n: {\n      \ntype\n: \narray\n,\n      \nitems\n: {\n        \ntype\n: \nfile\n\n      }\n    }\n  },\n  \nadditionalProperties\n: true,\n}\n\n\n\n\nProviding directory \n/photos/\n on your local machine contains two photos:\n\n\n1.jpg\n\n\n\n\n2.jpg\n\n\n\n\nLet's create a new venue:\n\n\n$ deform create mysquare.collections.venues \\\n    _id=subway \\\n    name=Subway \\\n    photos@/photos/1.jpg \\\n    photos@/photos/2.jpg\n\n\n\n\n{\n  \n_id\n: \nsubway\n,\n  \nname\n: \nSubway\n,\n  \nphotos\n: [\n    {\n      \n_id\n: \n55bcab67a44765000a000031\n,\n      \ncollection_id\n: \nvenues\n,\n      \ncontent_type\n: \nimage/jpeg\n,\n      \ndate_created\n: \n2016-02-01T11:20:07.141Z\n,\n      \ndocument_id\n: \nsubway\n,\n      \nlast_access\n: \n2016-02-01T11:20:07.141Z\n,\n      \nmd5\n: \nbfcd3c186b72829a7eab15e3469d2958\n,\n      \nname\n: \n1.jpg\n,\n      \nsize\n: 3191459\n    },\n    {\n      \n_id\n: \n66bcab67a44766000a000031\n,\n      \ncollection_id\n: \nvenues\n,\n      \ncontent_type\n: \nimage/jpeg\n,\n      \ndate_created\n: \n2016-02-01T11:20:08.141Z\n,\n      \ndocument_id\n: \nsubway\n,\n      \nlast_access\n: \n2016-02-01T11:20:08.141Z\n,\n      \nmd5\n: \ncfcd3c186c72829a7eac15e3469d2958\n,\n      \nname\n: \n2.jpg\n,\n      \nsize\n: 4191459\n    }\n  ]\n}\n\n\n\n\nEvery item in \nphotos\n attribute contains information about saved files.\nLet's get a content of the first image:\n\n\n$ deform get mysquare.collections.venues.subway.photos.0.content \n download.jpg\n\n\n\nIf you open downloaded image you will see the original \n1.jpg\n:\n\n\ndownload.jpg\n\n\n\n\nRead more about files\n.\n\n\nWebsite\n\n\nLet's build a small website with two pages:\n\n\n\n\nList page of the all venues\n\n\nDetail page of the one venue\n\n\n\n\nWe will use python with \nFlask\n and \nrequests\n. Install both packages first:\n\n\n$ pip install Flask requests\n\n\n\nLet's create a \nmysquare.py\n file and write some code:\n\n\nfrom flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route(\n/\n)\ndef venues_list():\n    return 'Venues list'\n\n@app.route(\n/\nvenue_id\n)\ndef venue_detail(venue_id):\n    return 'Venue with id \n%s\n' % venue_id\n\nif __name__ == \n__main__\n:\n    app.run(debug=True)\n\n\n\n\nRun the site:\n\n\n$ python mysquare.py\n* Restarting with fsevents reloader\n* Debugger is active!\n* Debugger pin code: 120-616-853\n\n\n\nWebsite should be running on you local machine.\n\n\nOpen address \nhttp://127.0.0.1:5000/\n in your web browser. You should see the venues list page:\n\n\n\n\nIf you open \nhttp://127.0.0.1:5000/hello\n in your web browser you should see\nthe venue detail page:\n\n\n\n\nRetrieving the venues\n\n\nWe know how to retrieve the documents from the collections using Deform CLI.\nFor retrieving the venues for the website we will use Deform's \nHTTP API\n.\n\n\nFor retrieving documents from the projects collection you must make the \nGET\n HTTP\nrequest for url compound by next pattern:\n\n\nhttps://\nproject-id\n.deform.io/api/collections/\ncollection-id\n/documents/\n\n\n\n\nLet's try to make the HTTP request inside the \nvenues_list\n function.\n\n\nfrom flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route(\n/\n)\ndef venues_list():\n    # make HTTP requests\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/'\n    )\n    # raise error if bad response code\n    response.raise_for_status()\n    # return raw content from the response\n    return response.content\n\n@app.route(\n/\nvenue_id\n)\ndef venue_detail(venue_id):\n    return 'Venue with id \n%s\n' % venue_id\n\nif __name__ == \n__main__\n:\n    app.run(debug=True)\n\n\n\n\nLet's try to open \nhttp://127.0.0.1:5000\n again. You should see something like this:\n\n\n\n\nWe got \n401 UNAUTHORIZED\n response code. Why did it happen?\n\n\nDeform does not allow to work with the project data without authorization.\nWhen you've been using CLI you were authorized with login and password.\nHow to authorize our website application? Let's create a token.\n\n\nCreating a token\n\n\nIf you want to authorize any client making changes or retrieving data from any\nproject you must create the \nauthorization token\n. Let's create the token\nand allow the clients using this token to read the documents from the \nvenues\n collection:\n\n\n$ deform create mysquare.collections.tokens.documents \\\n    _id=TFWaTgjB \\\n    name=\nRead venues\n \\\n    permissions.allow.read:='{\nwhat\n: \ndocument\n, \nwhere\n: \nvenues\n}'\n\n\n\n\n{\n  \n_id\n: \nTFWaTgjB\n,\n  \nname\n: \nRead venues\n,\n  \nis_active\n: true,\n  \npermissions\n: {\n    \nallow\n: {\n      \nread\n: {\n        \nwhat\n: \ndocument\n,\n        \nwhere\n: \nvenues\n\n      }\n    }\n  }\n}\n\n\n\n\nYou can check the token with CLI providing \n--auth-token\n flag:\n\n\n$ deform get mysquare.collections.venues.documents \\\n    --auth-token TFWaTgjB\n\n\n\n\n[\n  {\n    \n_id\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \n_id\n: \nmcdonalds\n,\n    \nname\n: \nMcDonalds\n,\n    \nrating\n: 10\n  },\n  {\n    \n_id\n: \nkfc\n,\n    \nname\n: \nKFC\n,\n    \nrating\n: 5\n  },\n  {\n    \n_id\n: \nsubway\n,\n    \nname\n: \nSubway\n,\n    \nphotos\n: [\n      {\n        \n_id\n: \n55bcab67a44765000a000031\n,\n        \ncollection_id\n: \nvenues\n,\n        \ncontent_type\n: \nimage/jpeg\n,\n        \ndate_created\n: \n2016-02-01T11:20:07.141Z\n,\n        \ndocument_id\n: \nsubway\n,\n        \nlast_access\n: \n2016-02-01T11:20:07.141Z\n,\n        \nmd5\n: \nbfcd3c186b72829a7eab15e3469d2958\n,\n        \nname\n: \n1.jpg\n,\n        \nsize\n: 3191459\n      },\n      {\n        \n_id\n: \n66bcab67a44766000a000031\n,\n        \ncollection_id\n: \nvenues\n,\n        \ncontent_type\n: \nimage/jpeg\n,\n        \ndate_created\n: \n2016-02-01T11:20:08.141Z\n,\n        \ndocument_id\n: \nsubway\n,\n        \nlast_access\n: \n2016-02-01T11:20:08.141Z\n,\n        \nmd5\n: \ncfcd3c186c72829a7eac15e3469d2958\n,\n        \nname\n: \n2.jpg\n,\n        \nsize\n: 4191459\n      }\n    ]\n  }\n]\n\n\n\n\nIf you try to retrieve data from the other collection or create a document in the\n\nvenues\n collection you will get the authorization error:\n\n\n$ deform create mysquare.collections.venues.documents \\\n    --auth-token TFWaTgjB \\\n    _id=pizzahut \\\n    name=Pizza hut\n\n\n\n\n{\n  \nerror\n: \nForbidden\n\n}\n\n\n\n\nLet's use the token for retrieving document with HTTP API. You must provide\n\nAuthorization\n header with value compound by template \nToken \ntoken-id\n:\n\n\nfrom flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route(\n/\n)\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        # use authorization token\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    response.raise_for_status()\n    return response.content\n\n@app.route(\n/\nvenue_id\n)\ndef venue_detail(venue_id):\n    return 'Venue with id \n%s\n' % venue_id\n\nif __name__ == \n__main__\n:\n    app.run(debug=True)\n\n\n\n\n\n\nCool, we've retrieved all the documents from the \nvenues\n collection.\n\n\nThe final step would be to retrieve a venue document for the venue detail view.\nWe should add some logic to \nvenue_detail\n function:\n\n\nfrom flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route(\n/\n)\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    response.raise_for_status()\n    return response.content\n\n@app.route(\n/\nvenue_id\n)\ndef venue_detail(venue_id):\n    # retrieving a document by venue_id\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/%s/' % (\n            venue_id,\n        ),\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    if response.status_code == 404:\n        # if no document with venue_id then return 404 error\n        return 'Venue with id \n%s\n is not found' % venue_id, 404\n    else:\n        response.raise_for_status()\n        return response.content\n\nif __name__ == \n__main__\n:\n    app.run(debug=True)\n\n\n\n\nIf you visit \nhttp://127.0.0.1/kf\n you will get \n404\n error because there is no\nvenue with \n_id\n equals \nkf\n:\n\n\n\n\nBut there is the venue with \n_id\n equals \nkfc\n on page \nhttp://127.0.0.1/kfc\n:\n\n\n\n\nCreating templates\n\n\nWe've finished with retrieving data from Deform and now let's add templates\nfor rendering HTML pages.\n\n\nfrom flask import Flask\n# function for rendering templates\nfrom flask import render_template\nimport requests\n\napp = Flask(__name__)\n\n@app.route(\n/\n)\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    response.raise_for_status()\n    # render venues_list.html template\n    return render_template(\n        'venues_list.html',\n        venues=response.json()['result']\n    )\n\n@app.route(\n/\nvenue_id\n)\ndef venue_detail(venue_id):\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/%s/' % (\n            venue_id,\n        ),\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    if response.status_code == 404:\n        return 'Venue with id \n%s\n is not found' % venue_id, 404\n    else:\n        response.raise_for_status()\n        # render venue_detail.html template\n        return render_template(\n            'venue_detail.html',\n            venue=response.json()['result']\n        )\n\nif __name__ == \n__main__\n:\n    app.run(debug=True)\n\n\n\n\nresponse.json()\n function converts json from response to the python's native object.\nThis object will be used inside the templates. Let's add the template for the venues list:\n\n\ntemplates/venues_list.html\n\n\nul\n\n  {% for venue in venues %}\n  \nli\n\n    \na href=\n{{ venue._id }}\n{{ venue.name }}\n/a\n\n  \n/li\n\n  {% endfor %}\n\n/ul\n\n\n\n\n\nIf you open index page of the website you will see a list of the links for the\nevery venue detail page:\n\n\n\n\nLet's add the venue detail template:\n\n\ntemplates/venue_detail.html\n\n\ndiv\n\n  \nh3\n{{ venue.name }}\n/h3\n\n  \ndiv\n\n    {% for photo in venue.photos %}\n      \nimg src=\nhttps://mysquare.deform.io/api/collections/venues/{{venue._id}}/photos/{{loop.index}}/content/\n\n           style=\nwidth: 100px; height: 100px\n\n           alt=\n /\n\n    {% endfor %}\n  \n/div\n\n\n/div\n\n\n\n\n\nOpen the \nhttp://127.0.0.1:5000/subway\n page:\n\n\n\n\nAs you remember it's possible to get file's content with CLI. For retrieving\nfile's content with HTTP API you can build a full url by next pattern:\n\n\nhttps://\nproject-id\n.deform.io/api/collections/\ncollection-id\n/documents/\ndocument-id\n/\npath-to-file-property\n/content/\n\n\n\n\nWhy don't we see the images on the venue page? Let's look at the developer console:\n\n\n\n\nYou should remember that Deform does not allow to work with the project data without authorization.\nBrowser is yet another client that should authorize it's requests to the HTTP API.\nIt's possible to send authorization token with \ntoken\n query parameter. For example:\n\n\nhttps://\nproject-id\n.deform.io/.../content/?token=\ntoken\n\n\n\n\n\nLet's send the token to the template context:\n\n\nfrom flask import Flask\nfrom flask import render_template\nimport requests\n\napp = Flask(__name__)\n\n# store token value in a variable\nTOKEN = 'TFWaTgjB'\n\n@app.route(\n/\n)\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        headers={\n            # reuse the variable\n            'Authorization': 'Token %s' % TOKEN\n        }\n    )\n    response.raise_for_status()\n    return render_template(\n        'venues_list.html',\n        venues=response.json()['result']\n    )\n\n@app.route(\n/\nvenue_id\n)\ndef venue_detail(venue_id):\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/%s/' % (\n            venue_id,\n        ),\n        headers={\n            # reuse the variable\n            'Authorization': 'Token %s' % TOKEN\n        }\n    )\n    if response.status_code == 404:\n        return 'Venue with id \n%s\n is not found' % venue_id, 404\n    else:\n        response.raise_for_status()\n        return render_template(\n            'venue_detail.html',\n            venue=response.json()['result'],\n            # send token to the template\n            token=TOKEN\n        )\n\nif __name__ == \n__main__\n:\n    app.run(debug=True)\n\n\n\n\nUse the token in image's content url:\n\n\ntemplates/venue_detail.html\n\n\ndiv\n\n  \nh3\n{{ venue.name }}\n/h3\n\n  \ndiv\n\n    {% for photo in venue.photos %}\n      \n!-- Use the token as the query parameter (at the and of the next line) --\n\n      \nimg src=\nhttps://mysquare.deform.io/api/collections/venues/{{venue._id}}/photos/{{loop.index}}/content/?token={{token}}\n\n           style=\nwidth: 100px; height: 100px\n\n           alt=\n /\n\n    {% endfor %}\n  \n/div\n\n\n/div\n\n\n\n\n\nTodo:\n\n\n\n\nImage resize processors\n\n\nReprocess images (for subway)\n\n\nGeolocation\n\n\nSearch:\n\n\nBy name\n\n\nBy compound field (with template processors)\n\n\n\n\n\n\n\n\nshow on map\nshow location near venue (on detail page)", 
+            "title": "Quickstart"
+        }, 
+        {
+            "location": "/quickstart/#setup", 
+            "text": "This quickstart assumes you have a working installation of  Deform cli .\nTo verify cli is installed, use the following command:  $ deform info  If you get  deform: command not found  you must install the CLI by following instructions . If you're a mac user you can install\nit with  brew :  $ brew install deform-cli", 
+            "title": "Setup"
+        }, 
+        {
+            "location": "/quickstart/#registration", 
+            "text": "If you are new to Deform you must create an account.\nProvide an initial project with the name and the identifier:  $ deform account create -e email@example.com -p mypassword \\\n      --project-name 'My mysquare' \\\n      --project-id 'mysquare'   Note  Be careful with the  --project-id .\nIt should be unique across the all Deform projects (even if it doesn't belong to your account!).\nIf you have some conflict errors just set the project's id as  mysquare1 ,  mysquare2 , etc...   When you create the account you automatically become logged in.  $ deform account  Let's look at the  mysquare  project info:  $ deform get mysquare  If you created the project with the id  mysquare3000  then use it:  $ deform get mysquare3000  We will use  mysquare  project id through all the documentation. Just don't forget\nto use your own id.", 
+            "title": "Registration"
+        }, 
+        {
+            "location": "/quickstart/#collections", 
+            "text": "Deform follows the  MongoDB  paradigm\nand operates over  collections  and  documents . To see what collections are already in\nproject you can type command with  get  project-id .collections  pattern:  $ deform get mysquare.collections  [  \n  {  \n     _id :  _files ,\n     name :  Files ,\n     schema : ...,\n     indexes : ...,\n    ...\n  },\n  ...\n]  We intentionally shortened response because by default this command returns\nname, schema, indexes and other information.  We can ask to show only the fields we want to see:  $ deform get mysquare.collections --fields name  [  \n  {  \n     _id :  _files ,\n     name :  Files \n  },\n  {\n     _id :  _tokens ,\n     name :  Tokens \n  },\n  {\n     _id :  _hooks ,\n     name :  Hooks \n  },\n  {\n     _id :  _hooks_history ,\n     name :  Hooks history \n  },\n  {\n     _id :  _notifications ,\n     name :  Notifications \n  }\n]  Every project in Deform contains system collections which names starts with  _  prefix.\nYou can not remove them.  Read more about system collections .", 
+            "title": "Collections"
+        }, 
+        {
+            "location": "/quickstart/#documents", 
+            "text": "Let's create a document in a collection called  venues :  $ deform create mysquare.collections.venues.documents name=Starbucks  {\n   _id :  56bcbb310640fd0be9fdba88 ,\n   name :  Starbucks \n}  We don't have to create the collection before inserting documents. If there is no collection venues  in the project it will be created automatically.  If you don't provide  _id  for the document it will be generated.  _id  is the only\nsystem field. It should be unique and can not be changed. We can remove the document\nand recreate it with a custom id:  $ deform remove mysquare.collections.venues.documents.56bcbb310640fd0be9fdba88\n$ deform create mysquare.collections.venues.documents \\\n    _id=starbucks \\\n    name=Starbucks  {\n   _id :  starbucks ,\n   name :  Starbucks \n}  Read more about documents .", 
+            "title": "Documents"
+        }, 
+        {
+            "location": "/quickstart/#schema", 
+            "text": "Deform doesn't force you to use a schema for the documents in any collection. This\nis the power of the nosql databases.\nYou can insert a venues without the  name  property but with a  rating  property:  $ deform create mysquare.collections.venues.documents \\\n    _id=mcdonalds \\\n    rating:=5  {\n   _id :  mcdonalds ,\n   rating : 5\n}  But what if you want the  name  property to be mandatory? That's where you can change\nthe schema of the  venues  collection.\nDeform uses  JSON schema  and by default it allows you to insert\nany properties. Let's look at the  venues  collection schema:  $ deform get mysquare.collections.venues.schema  {  \n   type :  object ,\n   properties : {},\n   additionalProperties : true\n}  Providing  additionalProperties  is  true  you are not limited to use any properties.  Let's make the  name  property required:  $ deform update --partial mysquare.collections.venues.schema \\\n    properties.name:='{ type :  string ,  required : true}'  {  \n   type :  object ,\n   properties : {\n     name : {\n       type :  string ,\n       required : true\n    }\n  },\n   additionalProperties : true,\n}  Let's try to create a venue without the  name  property:  $ deform create mysquare.collections.venues.documents \\\n    _id=kfc \\\n    rating:=5  {  \n   error : [\n    {\n       property :  name ,\n       message :  required \n    }\n  ]\n}  Oops. Validation error. That's what we've expected. Let's provide the  name :  $ deform create mysquare.collections.venues.documents \\\n    _id=kfc \\\n    name=KFC \\\n    rating:=5  {\n   _id :  kfc ,\n   name :  KFC ,\n   rating : 5\n}  The document've been successfully created. You could be curious what've happened with\nthe  mcdonalds  venue? Actually nothing, it's still in the  venues  collection:  $ deform get mysquare.collections.venues.documents  [\n  {\n     _id :  starbucks ,\n     name :  Starbucks \n  },\n  {\n     _id :  mcdonalds ,\n     rating : 10\n  },\n  {\n     _id :  kfc ,\n     name :  KFC ,\n     rating : 5\n  }\n]  Deform doesn't force you to migrate existing documents when the collection's schema is changed.\nBut when you try to update a document you will be asked to provide the required property:  $ deform update --partial mysquare.collections.venues.documents.mcdonalds \\\n    rating:=6  {  \n   error : [\n    {\n       property :  name ,\n       message :  required \n    }\n  ]\n}  Let's set the name for McDonalds:  $ deform update --partial mysquare.collections.venues.documents.mcdonalds \\\n    name=McDonalds  {\n   _id :  mcdonalds ,\n   name :  McDonalds ,\n   rating : 10\n}  Read more about schemas .", 
+            "title": "Schema"
+        }, 
+        {
+            "location": "/quickstart/#files", 
+            "text": "Our  venues  collection contains venues with the names but that is not enough.\nLet's add some photos!  Deform operates with files like with any data.\nLet's add an array property which will contain all the venue photos:  $ deform update --partial mysquare.collections.venues.schema \\\n    properties.photos:='{ type :  array ,  items : { type :  file }}'  {  \n   type :  object ,\n   properties : {\n     name : {\n       type :  string ,\n       required : true\n    },\n     photos : {\n       type :  array ,\n       items : {\n         type :  file \n      }\n    }\n  },\n   additionalProperties : true,\n}  Providing directory  /photos/  on your local machine contains two photos:  1.jpg   2.jpg   Let's create a new venue:  $ deform create mysquare.collections.venues \\\n    _id=subway \\\n    name=Subway \\\n    photos@/photos/1.jpg \\\n    photos@/photos/2.jpg  {\n   _id :  subway ,\n   name :  Subway ,\n   photos : [\n    {\n       _id :  55bcab67a44765000a000031 ,\n       collection_id :  venues ,\n       content_type :  image/jpeg ,\n       date_created :  2016-02-01T11:20:07.141Z ,\n       document_id :  subway ,\n       last_access :  2016-02-01T11:20:07.141Z ,\n       md5 :  bfcd3c186b72829a7eab15e3469d2958 ,\n       name :  1.jpg ,\n       size : 3191459\n    },\n    {\n       _id :  66bcab67a44766000a000031 ,\n       collection_id :  venues ,\n       content_type :  image/jpeg ,\n       date_created :  2016-02-01T11:20:08.141Z ,\n       document_id :  subway ,\n       last_access :  2016-02-01T11:20:08.141Z ,\n       md5 :  cfcd3c186c72829a7eac15e3469d2958 ,\n       name :  2.jpg ,\n       size : 4191459\n    }\n  ]\n}  Every item in  photos  attribute contains information about saved files.\nLet's get a content of the first image:  $ deform get mysquare.collections.venues.subway.photos.0.content   download.jpg  If you open downloaded image you will see the original  1.jpg :  download.jpg   Read more about files .", 
+            "title": "Files"
+        }, 
+        {
+            "location": "/quickstart/#website", 
+            "text": "Let's build a small website with two pages:   List page of the all venues  Detail page of the one venue   We will use python with  Flask  and  requests . Install both packages first:  $ pip install Flask requests  Let's create a  mysquare.py  file and write some code:  from flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route( / )\ndef venues_list():\n    return 'Venues list'\n\n@app.route( / venue_id )\ndef venue_detail(venue_id):\n    return 'Venue with id  %s ' % venue_id\n\nif __name__ ==  __main__ :\n    app.run(debug=True)  Run the site:  $ python mysquare.py\n* Restarting with fsevents reloader\n* Debugger is active!\n* Debugger pin code: 120-616-853  Website should be running on you local machine.  Open address  http://127.0.0.1:5000/  in your web browser. You should see the venues list page:   If you open  http://127.0.0.1:5000/hello  in your web browser you should see\nthe venue detail page:", 
+            "title": "Website"
+        }, 
+        {
+            "location": "/quickstart/#retrieving-the-venues", 
+            "text": "We know how to retrieve the documents from the collections using Deform CLI.\nFor retrieving the venues for the website we will use Deform's  HTTP API .  For retrieving documents from the projects collection you must make the  GET  HTTP\nrequest for url compound by next pattern:  https:// project-id .deform.io/api/collections/ collection-id /documents/  Let's try to make the HTTP request inside the  venues_list  function.  from flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route( / )\ndef venues_list():\n    # make HTTP requests\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/'\n    )\n    # raise error if bad response code\n    response.raise_for_status()\n    # return raw content from the response\n    return response.content\n\n@app.route( / venue_id )\ndef venue_detail(venue_id):\n    return 'Venue with id  %s ' % venue_id\n\nif __name__ ==  __main__ :\n    app.run(debug=True)  Let's try to open  http://127.0.0.1:5000  again. You should see something like this:   We got  401 UNAUTHORIZED  response code. Why did it happen?  Deform does not allow to work with the project data without authorization.\nWhen you've been using CLI you were authorized with login and password.\nHow to authorize our website application? Let's create a token.", 
+            "title": "Retrieving the venues"
+        }, 
+        {
+            "location": "/quickstart/#creating-a-token", 
+            "text": "If you want to authorize any client making changes or retrieving data from any\nproject you must create the  authorization token . Let's create the token\nand allow the clients using this token to read the documents from the  venues  collection:  $ deform create mysquare.collections.tokens.documents \\\n    _id=TFWaTgjB \\\n    name= Read venues  \\\n    permissions.allow.read:='{ what :  document ,  where :  venues }'  {\n   _id :  TFWaTgjB ,\n   name :  Read venues ,\n   is_active : true,\n   permissions : {\n     allow : {\n       read : {\n         what :  document ,\n         where :  venues \n      }\n    }\n  }\n}  You can check the token with CLI providing  --auth-token  flag:  $ deform get mysquare.collections.venues.documents \\\n    --auth-token TFWaTgjB  [\n  {\n     _id :  starbucks ,\n     name :  Starbucks \n  },\n  {\n     _id :  mcdonalds ,\n     name :  McDonalds ,\n     rating : 10\n  },\n  {\n     _id :  kfc ,\n     name :  KFC ,\n     rating : 5\n  },\n  {\n     _id :  subway ,\n     name :  Subway ,\n     photos : [\n      {\n         _id :  55bcab67a44765000a000031 ,\n         collection_id :  venues ,\n         content_type :  image/jpeg ,\n         date_created :  2016-02-01T11:20:07.141Z ,\n         document_id :  subway ,\n         last_access :  2016-02-01T11:20:07.141Z ,\n         md5 :  bfcd3c186b72829a7eab15e3469d2958 ,\n         name :  1.jpg ,\n         size : 3191459\n      },\n      {\n         _id :  66bcab67a44766000a000031 ,\n         collection_id :  venues ,\n         content_type :  image/jpeg ,\n         date_created :  2016-02-01T11:20:08.141Z ,\n         document_id :  subway ,\n         last_access :  2016-02-01T11:20:08.141Z ,\n         md5 :  cfcd3c186c72829a7eac15e3469d2958 ,\n         name :  2.jpg ,\n         size : 4191459\n      }\n    ]\n  }\n]  If you try to retrieve data from the other collection or create a document in the venues  collection you will get the authorization error:  $ deform create mysquare.collections.venues.documents \\\n    --auth-token TFWaTgjB \\\n    _id=pizzahut \\\n    name=Pizza hut  {\n   error :  Forbidden \n}  Let's use the token for retrieving document with HTTP API. You must provide Authorization  header with value compound by template  Token  token-id :  from flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route( / )\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        # use authorization token\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    response.raise_for_status()\n    return response.content\n\n@app.route( / venue_id )\ndef venue_detail(venue_id):\n    return 'Venue with id  %s ' % venue_id\n\nif __name__ ==  __main__ :\n    app.run(debug=True)   Cool, we've retrieved all the documents from the  venues  collection.  The final step would be to retrieve a venue document for the venue detail view.\nWe should add some logic to  venue_detail  function:  from flask import Flask\nimport requests\n\napp = Flask(__name__)\n\n@app.route( / )\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    response.raise_for_status()\n    return response.content\n\n@app.route( / venue_id )\ndef venue_detail(venue_id):\n    # retrieving a document by venue_id\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/%s/' % (\n            venue_id,\n        ),\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    if response.status_code == 404:\n        # if no document with venue_id then return 404 error\n        return 'Venue with id  %s  is not found' % venue_id, 404\n    else:\n        response.raise_for_status()\n        return response.content\n\nif __name__ ==  __main__ :\n    app.run(debug=True)  If you visit  http://127.0.0.1/kf  you will get  404  error because there is no\nvenue with  _id  equals  kf :   But there is the venue with  _id  equals  kfc  on page  http://127.0.0.1/kfc :", 
+            "title": "Creating a token"
+        }, 
+        {
+            "location": "/quickstart/#creating-templates", 
+            "text": "We've finished with retrieving data from Deform and now let's add templates\nfor rendering HTML pages.  from flask import Flask\n# function for rendering templates\nfrom flask import render_template\nimport requests\n\napp = Flask(__name__)\n\n@app.route( / )\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    response.raise_for_status()\n    # render venues_list.html template\n    return render_template(\n        'venues_list.html',\n        venues=response.json()['result']\n    )\n\n@app.route( / venue_id )\ndef venue_detail(venue_id):\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/%s/' % (\n            venue_id,\n        ),\n        headers={\n            'Authorization': 'Token TFWaTgjB'\n        }\n    )\n    if response.status_code == 404:\n        return 'Venue with id  %s  is not found' % venue_id, 404\n    else:\n        response.raise_for_status()\n        # render venue_detail.html template\n        return render_template(\n            'venue_detail.html',\n            venue=response.json()['result']\n        )\n\nif __name__ ==  __main__ :\n    app.run(debug=True)  response.json()  function converts json from response to the python's native object.\nThis object will be used inside the templates. Let's add the template for the venues list:  templates/venues_list.html  ul \n  {% for venue in venues %}\n   li \n     a href= {{ venue._id }} {{ venue.name }} /a \n   /li \n  {% endfor %} /ul   If you open index page of the website you will see a list of the links for the\nevery venue detail page:   Let's add the venue detail template:  templates/venue_detail.html  div \n   h3 {{ venue.name }} /h3 \n   div \n    {% for photo in venue.photos %}\n       img src= https://mysquare.deform.io/api/collections/venues/{{venue._id}}/photos/{{loop.index}}/content/ \n           style= width: 100px; height: 100px \n           alt=  / \n    {% endfor %}\n   /div  /div   Open the  http://127.0.0.1:5000/subway  page:   As you remember it's possible to get file's content with CLI. For retrieving\nfile's content with HTTP API you can build a full url by next pattern:  https:// project-id .deform.io/api/collections/ collection-id /documents/ document-id / path-to-file-property /content/  Why don't we see the images on the venue page? Let's look at the developer console:   You should remember that Deform does not allow to work with the project data without authorization.\nBrowser is yet another client that should authorize it's requests to the HTTP API.\nIt's possible to send authorization token with  token  query parameter. For example:  https:// project-id .deform.io/.../content/?token= token   Let's send the token to the template context:  from flask import Flask\nfrom flask import render_template\nimport requests\n\napp = Flask(__name__)\n\n# store token value in a variable\nTOKEN = 'TFWaTgjB'\n\n@app.route( / )\ndef venues_list():\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/',\n        headers={\n            # reuse the variable\n            'Authorization': 'Token %s' % TOKEN\n        }\n    )\n    response.raise_for_status()\n    return render_template(\n        'venues_list.html',\n        venues=response.json()['result']\n    )\n\n@app.route( / venue_id )\ndef venue_detail(venue_id):\n    response = requests.get(\n        'https://mysquare.deform.io/api/collections/venues/documents/%s/' % (\n            venue_id,\n        ),\n        headers={\n            # reuse the variable\n            'Authorization': 'Token %s' % TOKEN\n        }\n    )\n    if response.status_code == 404:\n        return 'Venue with id  %s  is not found' % venue_id, 404\n    else:\n        response.raise_for_status()\n        return render_template(\n            'venue_detail.html',\n            venue=response.json()['result'],\n            # send token to the template\n            token=TOKEN\n        )\n\nif __name__ ==  __main__ :\n    app.run(debug=True)  Use the token in image's content url:  templates/venue_detail.html  div \n   h3 {{ venue.name }} /h3 \n   div \n    {% for photo in venue.photos %}\n       !-- Use the token as the query parameter (at the and of the next line) -- \n       img src= https://mysquare.deform.io/api/collections/venues/{{venue._id}}/photos/{{loop.index}}/content/?token={{token}} \n           style= width: 100px; height: 100px \n           alt=  / \n    {% endfor %}\n   /div  /div", 
+            "title": "Creating templates"
+        }, 
+        {
+            "location": "/quickstart/#todo", 
+            "text": "Image resize processors  Reprocess images (for subway)  Geolocation  Search:  By name  By compound field (with template processors)     show on map\nshow location near venue (on detail page)", 
+            "title": "Todo:"
+        }, 
+        {
+            "location": "/projects/", 
+            "text": "Projects\n\n\nProject is an entity which contains collections. \n\n\nYou can request your project's entities by adding it's \n_id\n to our domain. \n\n\nFor example your project has \n_id\n equal to \nhello\n. Request it's collections as easy as:\n\n\ncurl -H \"Authorization: Token \nACCESS_TOKEN\n\" https://hello.deform.io/api/collections/\n\n\n\nLimitations\n\n\nBy default user can have maximum \n5\n projects.\n\n\nProject default settings:\n\n\n\n\ndatabase\n size: \n5 Mb\n\n\nfiles\n size: \n10 Mb\n\n\n\n\nStatus and Usage\n\n\nCurrent usage can be found in \nstatus\n property of a requested project.\n\n\nYou can modify \nsettings\n:\n\n\n\n\nsettings.delete_files\n - files should be deleted in the moment when related documents/collections are deleted ( \ndefault false\n )\n\n\nsettings.orphan_files_ttl\n - time orphan files to live if \nsettings.delete_files:false\n since \nlast_access\n of a file.", 
+            "title": "Projects"
+        }, 
+        {
+            "location": "/projects/#projects", 
+            "text": "Project is an entity which contains collections.   You can request your project's entities by adding it's  _id  to our domain.   For example your project has  _id  equal to  hello . Request it's collections as easy as:  curl -H \"Authorization: Token  ACCESS_TOKEN \" https://hello.deform.io/api/collections/", 
+            "title": "Projects"
+        }, 
+        {
+            "location": "/projects/#limitations", 
+            "text": "By default user can have maximum  5  projects.  Project default settings:   database  size:  5 Mb  files  size:  10 Mb", 
+            "title": "Limitations"
+        }, 
+        {
+            "location": "/projects/#status-and-usage", 
+            "text": "Current usage can be found in  status  property of a requested project.  You can modify  settings :   settings.delete_files  - files should be deleted in the moment when related documents/collections are deleted (  default false  )  settings.orphan_files_ttl  - time orphan files to live if  settings.delete_files:false  since  last_access  of a file.", 
+            "title": "Status and Usage"
+        }, 
+        {
+            "location": "/collections/", 
+            "text": "Collections\n\n\nCollection is an entity which contains documents. \n\n\nSystem collections\n\n\nBy default projects has collections which names starts with \n_\n:\n\n\n\n\n_notifications\n - System notifications will be saved here;\n\n\n_files\n - Uploaded and generated ( resized, watermarked and etc ) files;\n\n\n_tokens\n - Access tokens to your project;\n\n\n_hooks\n - Hooks;\n\n\n_hooks_history\n - Hook history with responses and status codes;\n\n\n_users\n - List of users allowed to your project. If you delete yourself you will have access to a project.\n\n\n\n\nYou cannot commit following operations to a system collections:\n\n\n\n\ncreate\n\n\ndelete\n\n\nchange\n \n\n\n\n\nDocument permissions in a collection can be found in a \ndocuments_permissions\n property. Possible values are:\n\n\n\n\nremoveable\n [:boolean] - you can \nremove\n documents inside of a collection;\n\n\ncreateable\n [:boolean] - you can \ncreate\n documents inside of a collection;\n\n\nupdateable\n [:boolean] - you can \nupdate\n documents inside of a collection.", 
+            "title": "Collections"
+        }, 
+        {
+            "location": "/collections/#collections", 
+            "text": "Collection is an entity which contains documents.", 
+            "title": "Collections"
+        }, 
+        {
+            "location": "/collections/#system-collections", 
+            "text": "By default projects has collections which names starts with  _ :   _notifications  - System notifications will be saved here;  _files  - Uploaded and generated ( resized, watermarked and etc ) files;  _tokens  - Access tokens to your project;  _hooks  - Hooks;  _hooks_history  - Hook history with responses and status codes;  _users  - List of users allowed to your project. If you delete yourself you will have access to a project.   You cannot commit following operations to a system collections:   create  delete  change     Document permissions in a collection can be found in a  documents_permissions  property. Possible values are:   removeable  [:boolean] - you can  remove  documents inside of a collection;  createable  [:boolean] - you can  create  documents inside of a collection;  updateable  [:boolean] - you can  update  documents inside of a collection.", 
+            "title": "System collections"
+        }, 
+        {
+            "location": "/documents/", 
+            "text": "Documents\n\n\nThe document is our most impressive entity. It can be validated, processed and etc.\n\n\nUsage cases\n\n\nThese are simple usage cases we implemented in our projects. They works:\n\n\n\n\nget a slack notification when \ndocument created/updated/removed\n in a criticaly important collection", 
+            "title": "Documents"
+        }, 
+        {
+            "location": "/documents/#documents", 
+            "text": "The document is our most impressive entity. It can be validated, processed and etc.", 
+            "title": "Documents"
+        }, 
+        {
+            "location": "/documents/#usage-cases", 
+            "text": "These are simple usage cases we implemented in our projects. They works:   get a slack notification when  document created/updated/removed  in a criticaly important collection", 
+            "title": "Usage cases"
+        }, 
+        {
+            "location": "/schemas/", 
+            "text": "Schemas\n\n\nWe use JSON Schema as a core feature for data description.\n\n\nHere\n you can find docs and examples. \n\n\nChanged behaviour\n\n\nWe had to change some property behaviours to fit our goals:\n\n\n\n\nadditionalProperties\n by default was \ntrue\n\n\nchanged\n to be \nfalse\n\n\n\n\n\n\n\n\nAttributes\n\n\nWe also added some new attributes:\n\n\n\n\nprocessors\n - add a list of processors to the field\n\n\nrequired\n - marks a field as required. By default the field is \nnot required\n. See the example below.\n\n\nimmutable\n - marks a field as an immutable. This means - you cannot change a field after it was created.\n\n\nposition\n - decorative helper attribute to assign a position in UI\n\n\n\n\nData types\n\n\nDefault data types:\n\n\n\n\narray\n - array\n\n\nboolean\n - boolean\n\n\ninteger\n - number without a fraction or exponent part\n\n\nnumber\n - number\n\n\nnull\n - null value\n\n\nobject\n - object\n\n\nstring\n - string\n\n\n\n\nWe added some custom types to extend default schema:\n\n\n\n\nfile\n - accepts a file uploaded using \nmultipart/form-data\n\n\ndatetime\n - we support \nISO 8601\n. For example:\n\n\n2009-11-10T23:00:00Z\n\n\n2015-06-03T15:55:59.073Z\n\n\n\n\n\n\nembed\n - makes possible to set a data source for the field. Required properties:\n\n\ncollection\n - points to collection for data to fetch from.\n\n\nfield\n - if document's field to identify document differs from \nid\n - you can set this value. \noptional\n\n\n\n\n\n\n\n\nAll datetime without a timezone will be assumed to be a UTC.\n\n\nYou can set a date to \n2015-06-03T18:55:59.073+03:00\n this will be converted to UTC and properly saved to database.", 
+            "title": "Schemas"
+        }, 
+        {
+            "location": "/schemas/#schemas", 
+            "text": "We use JSON Schema as a core feature for data description.  Here  you can find docs and examples.", 
+            "title": "Schemas"
+        }, 
+        {
+            "location": "/schemas/#changed-behaviour", 
+            "text": "We had to change some property behaviours to fit our goals:   additionalProperties  by default was  true  changed  to be  false", 
+            "title": "Changed behaviour"
+        }, 
+        {
+            "location": "/schemas/#attributes", 
+            "text": "We also added some new attributes:   processors  - add a list of processors to the field  required  - marks a field as required. By default the field is  not required . See the example below.  immutable  - marks a field as an immutable. This means - you cannot change a field after it was created.  position  - decorative helper attribute to assign a position in UI", 
+            "title": "Attributes"
+        }, 
+        {
+            "location": "/schemas/#data-types", 
+            "text": "Default data types:   array  - array  boolean  - boolean  integer  - number without a fraction or exponent part  number  - number  null  - null value  object  - object  string  - string   We added some custom types to extend default schema:   file  - accepts a file uploaded using  multipart/form-data  datetime  - we support  ISO 8601 . For example:  2009-11-10T23:00:00Z  2015-06-03T15:55:59.073Z    embed  - makes possible to set a data source for the field. Required properties:  collection  - points to collection for data to fetch from.  field  - if document's field to identify document differs from  id  - you can set this value.  optional     All datetime without a timezone will be assumed to be a UTC.  You can set a date to  2015-06-03T18:55:59.073+03:00  this will be converted to UTC and properly saved to database.", 
+            "title": "Data types"
+        }, 
+        {
+            "location": "/files/", 
+            "text": "Files\n\n\nYour files info stores in a \n_files\n system collection.\n\n\nTotal size of all files could be found in a \nproject's Status and Usage\n\n\nDocument and Content\n\n\nEvery file can be retrieved as a document and as a raw bytes.\n\n\n\n\n/collections/_files/documents/my_file/\n - as a json document\n\n\n/collections/_files/documents/my_file/content/\n - as raw bytes", 
+            "title": "Files"
+        }, 
+        {
+            "location": "/files/#files", 
+            "text": "Your files info stores in a  _files  system collection.  Total size of all files could be found in a  project's Status and Usage", 
+            "title": "Files"
+        }, 
+        {
+            "location": "/files/#document-and-content", 
+            "text": "Every file can be retrieved as a document and as a raw bytes.   /collections/_files/documents/my_file/  - as a json document  /collections/_files/documents/my_file/content/  - as raw bytes", 
+            "title": "Document and Content"
+        }, 
+        {
+            "location": "/tokens/", 
+            "text": "Tokens\n\n\nTokens are entities which can modify access levels to your documents and collections. \n\n\nTokens \ncannot\n be used to operate with:\n\n\n\n\nuser\n\n\nproject", 
+            "title": "Tokens"
+        }, 
+        {
+            "location": "/tokens/#tokens", 
+            "text": "Tokens are entities which can modify access levels to your documents and collections.   Tokens  cannot  be used to operate with:   user  project", 
+            "title": "Tokens"
+        }, 
+        {
+            "location": "/processors/", 
+            "text": "Processors\n\n\nProcessors are entities in a schema. They can have access to multiple properties.\n\n\nProcessors can be chained. \n\n\nThere is also a processor dependencies recursion check.\n\n\nFeel free to send us a feedback about processors you are missing.\n\n\nLimitations\n\n\nAs for now processor cannot process array fields. In future we will implement this feature.", 
+            "title": "Processors"
+        }, 
+        {
+            "location": "/processors/#processors", 
+            "text": "Processors are entities in a schema. They can have access to multiple properties.  Processors can be chained.   There is also a processor dependencies recursion check.  Feel free to send us a feedback about processors you are missing.", 
+            "title": "Processors"
+        }, 
+        {
+            "location": "/processors/#limitations", 
+            "text": "As for now processor cannot process array fields. In future we will implement this feature.", 
+            "title": "Limitations"
+        }, 
+        {
+            "location": "/embeds/", 
+            "text": "Embeds\n\n\nWe've implemented new type \nembed\n. \n\n\nThis type can access your project's collection document and set a property equal to document json content.\n\n\nExample: Countries \n Cities\n\n\nFor example you have two collections \ncountries\n and \ncities\n.\n\n\nSchema of \ncountries\n\n\n{\n    \"properties\": {\n        \"name\": {\n            \"type\": \"string\",\n            \"required\": true\n        },\n        \"code\": {\n            \"type\": \"string\",\n            \"required\": true\n        },\n        \"representation\": {\n            \"type\": \"string\",\n            \"processors\": [\n                {\n                    \"name\": \"template\",\n                    \"in\": {\n                        \"context\": {\n                            \"code\": {\n                                \"source\": \"property\",\n                                \"property\": \"code\"\n                            },\n                            \"name\": {\n                                \"source\": \"property\",\n                                \"property\": \"name\"\n                            }\n                        },\n                        \"syntax\": {\n                            \"source\": \"value\",\n                            \"value\": \"handlebars\"\n                        },\n                        \"template_string\": {\n                            \"source\": \"value\",\n                            \"value\": \"{{code}} - {{name}}\"\n                        }\n                    }\n                }\n            ]\n        }\n    }\n}\n\n\n\nSchema of \ncities\n:\n\n\n{\n    \"properties\": {\n        \"name\": {\n            \"type\": \"string\"\n        },\n        \"country\": {\n            \"type\": \"embed\",\n            \"collection\": \"countries\",\n            \"field\": \"code\"\n        },\n        \"population\": {\n            \"type\": \"number\"\n        }\n    }\n}\n\n\n\nWe have \nfield\n property set pointing to \ncode\n.\n\n\nValid payloads to match are:\n\n\n\n\n\n\nAs a value:\n\n\n{\n    \"payload\": {\n        \"country\": \"US\"\n    }\n}\n\n\n\n\n\n\n\nAs an object\n\n\n{\n    \"payload\": {\n        \"country\": {\n            \"code\": \"US\"\n        }\n    }\n}\n\n\n\n\n\n\n\nIf you are not setting a \nfield\n property filtering will be performed using a \nid\n field of a \ncountries\n collection.\n\n\nThe result \ncities document\n with an embedded \nUS\n country code as \nembed\n will be:\n\n\n{\n    \"name\": \"Washington\",\n    \"country\": {\n        \"id\": \"united_states\",\n        \"name\": \"United States\",\n        \"code\": \"US\",\n        \"representation\": \"US - United States\"\n    },\n    \"population\": 321729000\n}", 
+            "title": "Embeds"
+        }, 
+        {
+            "location": "/embeds/#embeds", 
+            "text": "We've implemented new type  embed .   This type can access your project's collection document and set a property equal to document json content.", 
+            "title": "Embeds"
+        }, 
+        {
+            "location": "/embeds/#example-countries-cities", 
+            "text": "For example you have two collections  countries  and  cities .  Schema of  countries  {\n    \"properties\": {\n        \"name\": {\n            \"type\": \"string\",\n            \"required\": true\n        },\n        \"code\": {\n            \"type\": \"string\",\n            \"required\": true\n        },\n        \"representation\": {\n            \"type\": \"string\",\n            \"processors\": [\n                {\n                    \"name\": \"template\",\n                    \"in\": {\n                        \"context\": {\n                            \"code\": {\n                                \"source\": \"property\",\n                                \"property\": \"code\"\n                            },\n                            \"name\": {\n                                \"source\": \"property\",\n                                \"property\": \"name\"\n                            }\n                        },\n                        \"syntax\": {\n                            \"source\": \"value\",\n                            \"value\": \"handlebars\"\n                        },\n                        \"template_string\": {\n                            \"source\": \"value\",\n                            \"value\": \"{{code}} - {{name}}\"\n                        }\n                    }\n                }\n            ]\n        }\n    }\n}  Schema of  cities :  {\n    \"properties\": {\n        \"name\": {\n            \"type\": \"string\"\n        },\n        \"country\": {\n            \"type\": \"embed\",\n            \"collection\": \"countries\",\n            \"field\": \"code\"\n        },\n        \"population\": {\n            \"type\": \"number\"\n        }\n    }\n}  We have  field  property set pointing to  code .  Valid payloads to match are:    As a value:  {\n    \"payload\": {\n        \"country\": \"US\"\n    }\n}    As an object  {\n    \"payload\": {\n        \"country\": {\n            \"code\": \"US\"\n        }\n    }\n}    If you are not setting a  field  property filtering will be performed using a  id  field of a  countries  collection.  The result  cities document  with an embedded  US  country code as  embed  will be:  {\n    \"name\": \"Washington\",\n    \"country\": {\n        \"id\": \"united_states\",\n        \"name\": \"United States\",\n        \"code\": \"US\",\n        \"representation\": \"US - United States\"\n    },\n    \"population\": 321729000\n}", 
+            "title": "Example: Countries &amp; Cities"
+        }, 
+        {
+            "location": "/hooks/", 
+            "text": "Hooks\n\n\nWebhooks are meant to commit a request somewhere when some event is being started.\n\n\nThey \nworks only for documents\n.\n\n\nWe have implemented webhooks as our needs were, but fill free to send us a feedback if you see something we missed.\n\n\nFeatures\n\n\nHeaders\n\n\nHook has a property \nheaders\n. \n\n\nEvery webhook will these headers in a request:\n\n\n\n\nX-Hook-ID\n - \n_id\n of a hook\n\n\nX-Hook-Trigger\n - \nevent\n of a document which caused hook to trigger\n\n\nX-Hook-Operation-ID\n - operation \n_id\n of a hook. Can be found in a \n_hooks_history\n\n\n\n\nIn case of method equals \nPUT\n, \nPATCH\n or \nPOST\n:\n\n\n\n\nHeader \nContent-Type\n will always be \napplication/json\n\n\nHeader \nContent-Length\n will be passed with length of a payload\n\n\n\n\nIn some cases you may need a webhook to pass a custom header with a request it commits.\n\n\nMethods\n\n\nThis Method is being used to commit a HTTP Request.\n\n\nHook has a property \nmethod\n. Possible values are \n[\"GET\", \"POST\", \"DELETE\", \"PUT\"]\n. \n\n\nMethods \nPUT\n, \nPATCH\n, \nPOST\n will contain a body. \n\n\nMethods \nGET\n, \nDELETE\n will not contain a body.\n\n\nIn some cases you may need a webhook to \nPUT\n a processed document to your cache or database with REST.\n\n\nEvents\n\n\nHook has a property \ntriggers\n. When a document event matches \n[\"created\", \"updated\", \"deleted\"]\n the webhook triggers.\n\n\nWrapper\n\n\nHook has a property \nrequest_payload_wrapper\n. By default a payload of a webhook is wrapped to \npayload\n property. \n\n\nSometimes you may need it to be a different root property.\n\n\nCondition\n\n\nHook has a property \ncondition\n. This is a schema. If a document which triggered this hook matches this \ncondition\n schema - this hook will commit an operation, otherwise it won't.\n\n\nIf you want all documents to trigger a hook - make it's value equal a\n\n\n{\n    \"type\": \"object\",\n    \"additionalProperties\": true\n}\n\n\n\nAll documents will match this schema and a hook will trigger", 
+            "title": "Hooks"
+        }, 
+        {
+            "location": "/hooks/#hooks", 
+            "text": "Webhooks are meant to commit a request somewhere when some event is being started.  They  works only for documents .  We have implemented webhooks as our needs were, but fill free to send us a feedback if you see something we missed.", 
+            "title": "Hooks"
+        }, 
+        {
+            "location": "/hooks/#features", 
+            "text": "", 
+            "title": "Features"
+        }, 
+        {
+            "location": "/hooks/#headers", 
+            "text": "Hook has a property  headers .   Every webhook will these headers in a request:   X-Hook-ID  -  _id  of a hook  X-Hook-Trigger  -  event  of a document which caused hook to trigger  X-Hook-Operation-ID  - operation  _id  of a hook. Can be found in a  _hooks_history   In case of method equals  PUT ,  PATCH  or  POST :   Header  Content-Type  will always be  application/json  Header  Content-Length  will be passed with length of a payload   In some cases you may need a webhook to pass a custom header with a request it commits.", 
+            "title": "Headers"
+        }, 
+        {
+            "location": "/hooks/#methods", 
+            "text": "This Method is being used to commit a HTTP Request.  Hook has a property  method . Possible values are  [\"GET\", \"POST\", \"DELETE\", \"PUT\"] .   Methods  PUT ,  PATCH ,  POST  will contain a body.   Methods  GET ,  DELETE  will not contain a body.  In some cases you may need a webhook to  PUT  a processed document to your cache or database with REST.", 
+            "title": "Methods"
+        }, 
+        {
+            "location": "/hooks/#events", 
+            "text": "Hook has a property  triggers . When a document event matches  [\"created\", \"updated\", \"deleted\"]  the webhook triggers.", 
+            "title": "Events"
+        }, 
+        {
+            "location": "/hooks/#wrapper", 
+            "text": "Hook has a property  request_payload_wrapper . By default a payload of a webhook is wrapped to  payload  property.   Sometimes you may need it to be a different root property.", 
+            "title": "Wrapper"
+        }, 
+        {
+            "location": "/hooks/#condition", 
+            "text": "Hook has a property  condition . This is a schema. If a document which triggered this hook matches this  condition  schema - this hook will commit an operation, otherwise it won't.  If you want all documents to trigger a hook - make it's value equal a  {\n    \"type\": \"object\",\n    \"additionalProperties\": true\n}  All documents will match this schema and a hook will trigger", 
+            "title": "Condition"
+        }, 
+        {
+            "location": "/cli/", 
+            "text": "CLI Reference\n\n\nDeform command line client (CLI) allows you talk to and operate Deform using the command line interface. It talks to the Deform using the public API.\n\n\nInstallation\n\n\nMac OS X\n\n\n$ brew install deform-cli\n\n\n\nUbuntu\n\n\n$ apt-get install deform-cli\n\n\n\nFrom binaries\n\n\ntodo: like \ndocker\n\n\nConfiguration\n\n\nUse mode\n\n\nSometimes it's annoying to repeat your project name or path you're navigating.\nFor example let's get the document with \n_id\n equals \nstarbucks\n:\n\n\n$ deform get mysquare.collections.venues.documents.starbucks\n\n\n\nYou can shorten this line by remembering the base path for the navigation:\n\n\n$ deform use mysquare\n$ deform get .collections.venues.documents.starbucks\n\n\n\nGoing deeper:\n\n\n$ deform use .collections.venues\n$ deform get .documents\n\n\n\nWith the command above you will get all the documents from the \nvenues\n collection.\nLet's get the exact document:\n\n\n$ deform get .documents.starbucks\n\n\n\nIn \"use\" mode there is no limitation for working with absolute paths:\n\n\n$ deform get mysquare.collections.venues.documents.starbucks\n\n\n\nVerbosity\n\n\nBy default CLI returns as simple response as possible. For example:\n\n\n$ deform get mysquare.collections.venues.documents --per-page 3\n\n\n\n[\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  }\n]\n\n\n\n\nWe've limited response by 3 documents. With \n-v\n flag we can see how many pages\nleft:\n\n\n$ deform get mysquare.collections.venues.documents --per-page 3 -v\n\n\n\n[\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  }\n]\n\nPage: 1\nPages: 2\nPer page: 3\nTotal: 6\nTime: 1.0 sec\n\n\n\n\nRaw HTTP requests\n\n\nIf you want to see raw data used by CLI to communicate with API and raw response\njust provide \n--http\n flag:\n\n\n$ deform get mysqaure.collections --http\n\n\n\ntodo: use real example\n\n\nPUT /put HTTP/1.1\nAccept: application/json\nAccept-Encoding: gzip, deflate\nContent-Type: application/json\nHost: httpbin.org\nUser-Agent: HTTPie/0.2.7dev\n\n{\n    \nhello\n: \nworld\n\n}\n\n\nHTTP/1.1 200 OK\nConnection: keep-alive\nContent-Length: 477\nContent-Type: application/json\nDate: Sun, 05 Aug 2012 00:25:23 GMT\nServer: gunicorn/0.13.4\n\n{\n    [\u2026]\n}\n\n\n\n\n\nAccount\n\n\n\n\ndeform account\n\n\ndeform account create\n\n\n\n\nAuthentication\n\n\nCreating project", 
+            "title": "CLI Reference"
+        }, 
+        {
+            "location": "/cli/#cli-reference", 
+            "text": "Deform command line client (CLI) allows you talk to and operate Deform using the command line interface. It talks to the Deform using the public API.", 
+            "title": "CLI Reference"
+        }, 
+        {
+            "location": "/cli/#installation", 
+            "text": "", 
+            "title": "Installation"
+        }, 
+        {
+            "location": "/cli/#mac-os-x", 
+            "text": "$ brew install deform-cli", 
+            "title": "Mac OS X"
+        }, 
+        {
+            "location": "/cli/#ubuntu", 
+            "text": "$ apt-get install deform-cli", 
+            "title": "Ubuntu"
+        }, 
+        {
+            "location": "/cli/#from-binaries", 
+            "text": "todo: like  docker", 
+            "title": "From binaries"
+        }, 
+        {
+            "location": "/cli/#configuration", 
+            "text": "", 
+            "title": "Configuration"
+        }, 
+        {
+            "location": "/cli/#use-mode", 
+            "text": "Sometimes it's annoying to repeat your project name or path you're navigating.\nFor example let's get the document with  _id  equals  starbucks :  $ deform get mysquare.collections.venues.documents.starbucks  You can shorten this line by remembering the base path for the navigation:  $ deform use mysquare\n$ deform get .collections.venues.documents.starbucks  Going deeper:  $ deform use .collections.venues\n$ deform get .documents  With the command above you will get all the documents from the  venues  collection.\nLet's get the exact document:  $ deform get .documents.starbucks  In \"use\" mode there is no limitation for working with absolute paths:  $ deform get mysquare.collections.venues.documents.starbucks", 
+            "title": "Use mode"
+        }, 
+        {
+            "location": "/cli/#verbosity", 
+            "text": "By default CLI returns as simple response as possible. For example:  $ deform get mysquare.collections.venues.documents --per-page 3  [\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  },\n  {\n     id :  ,\n     name :  Starbucks \n  },\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  }\n]  We've limited response by 3 documents. With  -v  flag we can see how many pages\nleft:  $ deform get mysquare.collections.venues.documents --per-page 3 -v  [\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  },\n  {\n     id :  ,\n     name :  Starbucks \n  },\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  }\n]\n\nPage: 1\nPages: 2\nPer page: 3\nTotal: 6\nTime: 1.0 sec", 
+            "title": "Verbosity"
+        }, 
+        {
+            "location": "/cli/#raw-http-requests", 
+            "text": "If you want to see raw data used by CLI to communicate with API and raw response\njust provide  --http  flag:  $ deform get mysqaure.collections --http", 
+            "title": "Raw HTTP requests"
+        }, 
+        {
+            "location": "/cli/#todo-use-real-example", 
+            "text": "PUT /put HTTP/1.1\nAccept: application/json\nAccept-Encoding: gzip, deflate\nContent-Type: application/json\nHost: httpbin.org\nUser-Agent: HTTPie/0.2.7dev\n\n{\n     hello :  world \n}\n\n\nHTTP/1.1 200 OK\nConnection: keep-alive\nContent-Length: 477\nContent-Type: application/json\nDate: Sun, 05 Aug 2012 00:25:23 GMT\nServer: gunicorn/0.13.4\n\n{\n    [\u2026]\n}", 
+            "title": "todo: use real example"
+        }, 
+        {
+            "location": "/cli/#account", 
+            "text": "deform account  deform account create", 
+            "title": "Account"
+        }, 
+        {
+            "location": "/cli/#authentication", 
+            "text": "", 
+            "title": "Authentication"
+        }, 
+        {
+            "location": "/cli/#creating-project", 
+            "text": "", 
+            "title": "Creating project"
+        }, 
+        {
+            "location": "/cli/", 
+            "text": "CLI Reference\n\n\nDeform command line client (CLI) allows you talk to and operate Deform using the command line interface. It talks to the Deform using the public API.\n\n\nInstallation\n\n\nMac OS X\n\n\n$ brew install deform-cli\n\n\n\nUbuntu\n\n\n$ apt-get install deform-cli\n\n\n\nFrom binaries\n\n\ntodo: like \ndocker\n\n\nConfiguration\n\n\nUse mode\n\n\nSometimes it's annoying to repeat your project name or path you're navigating.\nFor example let's get the document with \n_id\n equals \nstarbucks\n:\n\n\n$ deform get mysquare.collections.venues.documents.starbucks\n\n\n\nYou can shorten this line by remembering the base path for the navigation:\n\n\n$ deform use mysquare\n$ deform get .collections.venues.documents.starbucks\n\n\n\nGoing deeper:\n\n\n$ deform use .collections.venues\n$ deform get .documents\n\n\n\nWith the command above you will get all the documents from the \nvenues\n collection.\nLet's get the exact document:\n\n\n$ deform get .documents.starbucks\n\n\n\nIn \"use\" mode there is no limitation for working with absolute paths:\n\n\n$ deform get mysquare.collections.venues.documents.starbucks\n\n\n\nVerbosity\n\n\nBy default CLI returns as simple response as possible. For example:\n\n\n$ deform get mysquare.collections.venues.documents --per-page 3\n\n\n\n[\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  }\n]\n\n\n\n\nWe've limited response by 3 documents. With \n-v\n flag we can see how many pages\nleft:\n\n\n$ deform get mysquare.collections.venues.documents --per-page 3 -v\n\n\n\n[\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \n,\n    \nname\n: \nStarbucks\n\n  },\n  {\n    \nid\n: \nstarbucks\n,\n    \nname\n: \nStarbucks\n\n  }\n]\n\nPage: 1\nPages: 2\nPer page: 3\nTotal: 6\nTime: 1.0 sec\n\n\n\n\nRaw HTTP requests\n\n\nIf you want to see raw data used by CLI to communicate with API and raw response\njust provide \n--http\n flag:\n\n\n$ deform get mysqaure.collections --http\n\n\n\ntodo: use real example\n\n\nPUT /put HTTP/1.1\nAccept: application/json\nAccept-Encoding: gzip, deflate\nContent-Type: application/json\nHost: httpbin.org\nUser-Agent: HTTPie/0.2.7dev\n\n{\n    \nhello\n: \nworld\n\n}\n\n\nHTTP/1.1 200 OK\nConnection: keep-alive\nContent-Length: 477\nContent-Type: application/json\nDate: Sun, 05 Aug 2012 00:25:23 GMT\nServer: gunicorn/0.13.4\n\n{\n    [\u2026]\n}\n\n\n\n\n\nAccount\n\n\n\n\ndeform account\n\n\ndeform account create\n\n\n\n\nAuthentication\n\n\nCreating project", 
+            "title": "HTTP API Reference"
+        }, 
+        {
+            "location": "/cli/#cli-reference", 
+            "text": "Deform command line client (CLI) allows you talk to and operate Deform using the command line interface. It talks to the Deform using the public API.", 
+            "title": "CLI Reference"
+        }, 
+        {
+            "location": "/cli/#installation", 
+            "text": "", 
+            "title": "Installation"
+        }, 
+        {
+            "location": "/cli/#mac-os-x", 
+            "text": "$ brew install deform-cli", 
+            "title": "Mac OS X"
+        }, 
+        {
+            "location": "/cli/#ubuntu", 
+            "text": "$ apt-get install deform-cli", 
+            "title": "Ubuntu"
+        }, 
+        {
+            "location": "/cli/#from-binaries", 
+            "text": "todo: like  docker", 
+            "title": "From binaries"
+        }, 
+        {
+            "location": "/cli/#configuration", 
+            "text": "", 
+            "title": "Configuration"
+        }, 
+        {
+            "location": "/cli/#use-mode", 
+            "text": "Sometimes it's annoying to repeat your project name or path you're navigating.\nFor example let's get the document with  _id  equals  starbucks :  $ deform get mysquare.collections.venues.documents.starbucks  You can shorten this line by remembering the base path for the navigation:  $ deform use mysquare\n$ deform get .collections.venues.documents.starbucks  Going deeper:  $ deform use .collections.venues\n$ deform get .documents  With the command above you will get all the documents from the  venues  collection.\nLet's get the exact document:  $ deform get .documents.starbucks  In \"use\" mode there is no limitation for working with absolute paths:  $ deform get mysquare.collections.venues.documents.starbucks", 
+            "title": "Use mode"
+        }, 
+        {
+            "location": "/cli/#verbosity", 
+            "text": "By default CLI returns as simple response as possible. For example:  $ deform get mysquare.collections.venues.documents --per-page 3  [\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  },\n  {\n     id :  ,\n     name :  Starbucks \n  },\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  }\n]  We've limited response by 3 documents. With  -v  flag we can see how many pages\nleft:  $ deform get mysquare.collections.venues.documents --per-page 3 -v  [\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  },\n  {\n     id :  ,\n     name :  Starbucks \n  },\n  {\n     id :  starbucks ,\n     name :  Starbucks \n  }\n]\n\nPage: 1\nPages: 2\nPer page: 3\nTotal: 6\nTime: 1.0 sec", 
+            "title": "Verbosity"
+        }, 
+        {
+            "location": "/cli/#raw-http-requests", 
+            "text": "If you want to see raw data used by CLI to communicate with API and raw response\njust provide  --http  flag:  $ deform get mysqaure.collections --http", 
+            "title": "Raw HTTP requests"
+        }, 
+        {
+            "location": "/cli/#todo-use-real-example", 
+            "text": "PUT /put HTTP/1.1\nAccept: application/json\nAccept-Encoding: gzip, deflate\nContent-Type: application/json\nHost: httpbin.org\nUser-Agent: HTTPie/0.2.7dev\n\n{\n     hello :  world \n}\n\n\nHTTP/1.1 200 OK\nConnection: keep-alive\nContent-Length: 477\nContent-Type: application/json\nDate: Sun, 05 Aug 2012 00:25:23 GMT\nServer: gunicorn/0.13.4\n\n{\n    [\u2026]\n}", 
+            "title": "todo: use real example"
+        }, 
+        {
+            "location": "/cli/#account", 
+            "text": "deform account  deform account create", 
+            "title": "Account"
+        }, 
+        {
+            "location": "/cli/#authentication", 
+            "text": "", 
+            "title": "Authentication"
+        }, 
+        {
+            "location": "/cli/#creating-project", 
+            "text": "", 
+            "title": "Creating project"
+        }, 
+        {
+            "location": "/changelog/", 
+            "text": "Api Backend\n\n\nv0.0.1\n\n\n30.04.2016\n\n\n\n\nUser can have \n5\n projects.\n\n\n\n\n17.04.2016\n\n\n\n\nCollection and Project support \nfields\n and \nfields_exclude\n.\n\n\n\n\n30.03.2016\n\n\n\n\nWatermark processor fix. No url required. Watermark file is required.\n\n\n\n\n18.03.2016\n\n\n\n\nProcessor dependency recursion detection implemented.\n\n\nProcessOnly mechanism implemented.\n\n\n\n\n12.03.2016\n\n\n\n\n\n\nHttp Api Response interface migrated from\n\n\n{\n    \"error\": [\n    ]\n}\n\n\n\nto \n\n\n{\n    \"result\": {\n        \"message\": \"\",\n        \"errors\": [\n        ],\n    }\n}\n\n\n\n\n\n\n\n11.03.2016\n\n\n\n\n\n\nToken permissions migrated from\n\n\n{\n    \"permission\": {\n        \"all\": true,\n        \"read\": [],\n        \"write\": [],\n        \"delete\": [],\n        \"update\": []\n    }\n}\n\n\n\nto \n\n\n{\n    \"permission\": {\n        \"allow\": {\n            \"all\": true,\n            \"read\": [],\n            \"write\": [],\n            \"delete\": [],\n            \"update\": []\n        }\n    }\n}\n\n\n\n\n\n\n\n23.02.2016\n\n\n\n\nHooks has a timeout 10 seconds\n\n\n\n\n21.02.2016\n\n\n\n\nNew system collection \n_users\n.\n\n\nNew system collection \n_notification\n.\n\n\n\n\n20.02.2016\n\n\n\n\nUser email validation\n\n\nUser can invite another user ( already registered or send invintation email ) to project\n\n\n\n\n19.02.2016\n\n\n\n\nAll queueing operations now commits in goroutines. This should significantly decrease response time.\n\n\nDocuments can be deleted by criteria. \ncurl -X POST -H \"X-Action: Delete\" -H \"Content-Type: application/json\" -d '{\"payload\": {\"filter\": {\"_id\": {\"$in\": [\"document-8069947-8069947\"]}}}}'\n\n\n\n\n\n\n\n14.02.2016\n\n\n\n\nSystem collections now have an underscore prefix. It's forbidden to create a collection with an underscore sign.\n\n\nSystem fields \n_id\n now have an underscore prefix.\n\n\nResponse json interface \nerror\n now is an array of objects. The schema is:\n{\n    \"property\": {\n        \"type\": [\"string\", \"null\"]\n    },\n    \"message\": {\n        \"type\": \"string\"\n    }\n}", 
+            "title": "Changelog"
+        }, 
+        {
+            "location": "/changelog/#api-backend", 
+            "text": "", 
+            "title": "Api Backend"
+        }, 
+        {
+            "location": "/changelog/#v001", 
+            "text": "", 
+            "title": "v0.0.1"
+        }, 
+        {
+            "location": "/changelog/#30042016", 
+            "text": "User can have  5  projects.", 
+            "title": "30.04.2016"
+        }, 
+        {
+            "location": "/changelog/#17042016", 
+            "text": "Collection and Project support  fields  and  fields_exclude .", 
+            "title": "17.04.2016"
+        }, 
+        {
+            "location": "/changelog/#30032016", 
+            "text": "Watermark processor fix. No url required. Watermark file is required.", 
+            "title": "30.03.2016"
+        }, 
+        {
+            "location": "/changelog/#18032016", 
+            "text": "Processor dependency recursion detection implemented.  ProcessOnly mechanism implemented.", 
+            "title": "18.03.2016"
+        }, 
+        {
+            "location": "/changelog/#12032016", 
+            "text": "Http Api Response interface migrated from  {\n    \"error\": [\n    ]\n}  to   {\n    \"result\": {\n        \"message\": \"\",\n        \"errors\": [\n        ],\n    }\n}", 
+            "title": "12.03.2016"
+        }, 
+        {
+            "location": "/changelog/#11032016", 
+            "text": "Token permissions migrated from  {\n    \"permission\": {\n        \"all\": true,\n        \"read\": [],\n        \"write\": [],\n        \"delete\": [],\n        \"update\": []\n    }\n}  to   {\n    \"permission\": {\n        \"allow\": {\n            \"all\": true,\n            \"read\": [],\n            \"write\": [],\n            \"delete\": [],\n            \"update\": []\n        }\n    }\n}", 
+            "title": "11.03.2016"
+        }, 
+        {
+            "location": "/changelog/#23022016", 
+            "text": "Hooks has a timeout 10 seconds", 
+            "title": "23.02.2016"
+        }, 
+        {
+            "location": "/changelog/#21022016", 
+            "text": "New system collection  _users .  New system collection  _notification .", 
+            "title": "21.02.2016"
+        }, 
+        {
+            "location": "/changelog/#20022016", 
+            "text": "User email validation  User can invite another user ( already registered or send invintation email ) to project", 
+            "title": "20.02.2016"
+        }, 
+        {
+            "location": "/changelog/#19022016", 
+            "text": "All queueing operations now commits in goroutines. This should significantly decrease response time.  Documents can be deleted by criteria.  curl -X POST -H \"X-Action: Delete\" -H \"Content-Type: application/json\" -d '{\"payload\": {\"filter\": {\"_id\": {\"$in\": [\"document-8069947-8069947\"]}}}}'", 
+            "title": "19.02.2016"
+        }, 
+        {
+            "location": "/changelog/#14022016", 
+            "text": "System collections now have an underscore prefix. It's forbidden to create a collection with an underscore sign.  System fields  _id  now have an underscore prefix.  Response json interface  error  now is an array of objects. The schema is: {\n    \"property\": {\n        \"type\": [\"string\", \"null\"]\n    },\n    \"message\": {\n        \"type\": \"string\"\n    }\n}", 
+            "title": "14.02.2016"
+        }
+    ]
+}

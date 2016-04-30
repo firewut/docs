@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <title>HTTP API Reference - Deform</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "HTTP API Reference";
+    var mkdocs_page_input_path = "cli.md";
+    var mkdocs_page_url = "/cli/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Deform</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="..">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../quickstart/">Quickstart</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../projects/">Projects</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../collections/">Collections</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../documents/">Documents</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../schemas/">Schemas</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../files/">Files</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../tokens/">Tokens</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../processors/">Processors</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../embeds/">Embeds</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../hooks/">Hooks</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="./">CLI Reference</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">HTTP API Reference</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#cli-reference">CLI Reference</a></li>
+                
+                    <li><a class="toctree-l4" href="#installation">Installation</a></li>
+                
+                    <li><a class="toctree-l4" href="#configuration">Configuration</a></li>
+                
+                    <li><a class="toctree-l4" href="#use-mode">Use mode</a></li>
+                
+                    <li><a class="toctree-l4" href="#verbosity">Verbosity</a></li>
+                
+                    <li><a class="toctree-l4" href="#raw-http-requests">Raw HTTP requests</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#todo-use-real-example">todo: use real example</a></li>
+                
+                    <li><a class="toctree-l4" href="#account">Account</a></li>
+                
+                    <li><a class="toctree-l4" href="#authentication">Authentication</a></li>
+                
+                    <li><a class="toctree-l4" href="#creating-project">Creating project</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../changelog/">Changelog</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Deform</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>HTTP API Reference</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="cli-reference">CLI Reference</h1>
+<p>Deform command line client (CLI) allows you talk to and operate Deform using the command line interface. It talks to the Deform using the public API.</p>
+<h2 id="installation">Installation</h2>
+<h3 id="mac-os-x">Mac OS X</h3>
+<pre><code>$ brew install deform-cli
+</code></pre>
+<h3 id="ubuntu">Ubuntu</h3>
+<pre><code>$ apt-get install deform-cli
+</code></pre>
+<h3 id="from-binaries">From binaries</h3>
+<p>todo: like <a href="https://docs.docker.com/engine/installation/binaries/">docker</a></p>
+<h2 id="configuration">Configuration</h2>
+<h2 id="use-mode">Use mode</h2>
+<p>Sometimes it's annoying to repeat your project name or path you're navigating.
+For example let's get the document with <code>_id</code> equals <code>starbucks</code>:</p>
+<pre><code>$ deform get mysquare.collections.venues.documents.starbucks
+</code></pre>
+<p>You can shorten this line by remembering the base path for the navigation:</p>
+<pre><code>$ deform use mysquare
+$ deform get .collections.venues.documents.starbucks
+</code></pre>
+<p>Going deeper:</p>
+<pre><code>$ deform use .collections.venues
+$ deform get .documents
+</code></pre>
+<p>With the command above you will get all the documents from the <code>venues</code> collection.
+Let's get the exact document:</p>
+<pre><code>$ deform get .documents.starbucks
+</code></pre>
+<p>In "use" mode there is no limitation for working with absolute paths:</p>
+<pre><code>$ deform get mysquare.collections.venues.documents.starbucks
+</code></pre>
+<h2 id="verbosity">Verbosity</h2>
+<p>By default CLI returns as simple response as possible. For example:</p>
+<pre><code>$ deform get mysquare.collections.venues.documents --per-page 3
+</code></pre>
+<pre><code class="json">[
+  {
+    &quot;id&quot;: &quot;starbucks&quot;,
+    &quot;name&quot;: &quot;Starbucks&quot;
+  },
+  {
+    &quot;id&quot;: &quot;&quot;,
+    &quot;name&quot;: &quot;Starbucks&quot;
+  },
+  {
+    &quot;id&quot;: &quot;starbucks&quot;,
+    &quot;name&quot;: &quot;Starbucks&quot;
+  }
+]
+</code></pre>
+
+<p>We've limited response by 3 documents. With <code>-v</code> flag we can see how many pages
+left:</p>
+<pre><code>$ deform get mysquare.collections.venues.documents --per-page 3 -v
+</code></pre>
+<pre><code class="json">[
+  {
+    &quot;id&quot;: &quot;starbucks&quot;,
+    &quot;name&quot;: &quot;Starbucks&quot;
+  },
+  {
+    &quot;id&quot;: &quot;&quot;,
+    &quot;name&quot;: &quot;Starbucks&quot;
+  },
+  {
+    &quot;id&quot;: &quot;starbucks&quot;,
+    &quot;name&quot;: &quot;Starbucks&quot;
+  }
+]
+
+Page: 1
+Pages: 2
+Per page: 3
+Total: 6
+Time: 1.0 sec
+</code></pre>
+
+<h2 id="raw-http-requests">Raw HTTP requests</h2>
+<p>If you want to see raw data used by CLI to communicate with API and raw response
+just provide <code>--http</code> flag:</p>
+<pre><code>$ deform get mysqaure.collections --http
+</code></pre>
+<h1 id="todo-use-real-example">todo: use real example</h1>
+<pre><code class="json">PUT /put HTTP/1.1
+Accept: application/json
+Accept-Encoding: gzip, deflate
+Content-Type: application/json
+Host: httpbin.org
+User-Agent: HTTPie/0.2.7dev
+
+{
+    &quot;hello&quot;: &quot;world&quot;
+}
+
+
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Length: 477
+Content-Type: application/json
+Date: Sun, 05 Aug 2012 00:25:23 GMT
+Server: gunicorn/0.13.4
+
+{
+    […]
+}
+
+</code></pre>
+
+<h2 id="account">Account</h2>
+<ul>
+<li><code>deform account</code></li>
+<li><code>deform account create</code></li>
+</ul>
+<h2 id="authentication">Authentication</h2>
+<h2 id="creating-project">Creating project</h2>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../changelog/" class="btn btn-neutral float-right" title="Changelog">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="./" class="btn btn-neutral" title="CLI Reference"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="./" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../changelog/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>
